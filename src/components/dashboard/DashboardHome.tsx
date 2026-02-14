@@ -16,12 +16,17 @@ function DashboardHome({ ownerId }: { ownerId?: string }) {
     const [emailError, setEmailError] = useState("");
 
     const validateEmail = (email: string): boolean => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
         return emailRegex.test(email);
     };
 
     const handleSave = async () => {
         // Validate email format
+        if (!supportEmail.trim()) {
+            setEmailError("Email address is required");
+            return;
+        }
+        
         if (!validateEmail(supportEmail)) {
             setEmailError("Please enter a valid email address");
             return;
