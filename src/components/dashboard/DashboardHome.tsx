@@ -45,7 +45,9 @@ function DashboardHome({ ownerId }: { ownerId?: string }) {
                     color: "#fff",
                 }
             });
-            console.log(error);
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Settings save error:', error);
+            }
         } finally {
             setLoading(false);
         }
@@ -64,14 +66,9 @@ function DashboardHome({ ownerId }: { ownerId?: string }) {
                     setCanEmbed(true);
                 }
             } catch (error) {
-                toast.error("Failed to load settings. Please refresh the page.", {
-                    style: {
-                        borderRadius: "10px",
-                        background: "#333",
-                        color: "#fff",
-                    }
-                });
-                console.log(error); 
+                if (process.env.NODE_ENV === 'development') {
+                    console.error('Failed to fetch settings:', error);
+                }
             }
         }
 
