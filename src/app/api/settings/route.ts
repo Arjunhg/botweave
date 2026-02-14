@@ -12,13 +12,12 @@ export async function POST(req: NextRequest){
         await connectToDB();
 
         const result = await Settings.findOneAndUpdate(
-            { ownerId }, { businessName, supportEmail, knowledge }, { new: true, upsert: true, rawResult: true }
+            { ownerId }, { businessName, supportEmail, knowledge }, { returnDocument: "after", upsert: true, includeResultMetadata: true }
         );
 
-        const wasCreated = !result.lastErrorObject.updatedExisting;
-        const statusCode = wasCreated ? 201 : 200;
+        const wasCreated = !result.lastErrorObject?.updatedExisting;
 
-        return NextResponse.json(result.value, { status: statusCode });
+        return NextResponse.json(result.value, { status: wasCreated ? 201 : 200 });
 
     } catch (error) {
         return NextResponse.json({
