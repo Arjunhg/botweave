@@ -4,83 +4,80 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+
+type FormValues = {
+    businessName: string;
+    supportEmail: string;
+    knowledge: string;
+}
 
 function DashboardHome({ ownerId }: { ownerId?: string }) {
     const navigate = useRouter();
-    const [businessName, setBusinessName] = useState("");
-    const [supportEmail, setSupportEmail] = useState("");
-    const [knowledge, setKnowledge] = useState("");
+
     const [loading, setLoading] = useState(false);
     const [saved, setSaved] = useState(false);
     const [canEmbed, setCanEmbed] = useState(false);
-    const [emailError, setEmailError] = useState("");
 
-    // Email validation regex pattern
-    // Validates: user@domain.tld format with common special characters
-    // - Local part: letters, numbers, and ._%+- characters
-    // - Domain: letters, numbers, hyphens (not at start/end)
-    // - TLD: minimum 2 letters
-    const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        formState: { errors }
+    } = useForm<FormValues>();
 
-    const validateEmail = (email: string): boolean => {
-        return EMAIL_REGEX.test(email);
-    };
-
-    const handleSave = async () => {
-        // Validate email format if provided
-        if (supportEmail.trim()) {
-            if (!validateEmail(supportEmail.trim())) {
-                setEmailError("Please enter a valid email address");
-                return;
-            }
-        }
-
-        setEmailError("");
+    const onSumbit = async (data: FormValues) => {
         setLoading(true);
         try {
             await axios.post("/api/settings", {
                 ownerId,
-                businessName,
-                supportEmail,
-                knowledge,
+                ...data
             });
-
-            setLoading(false);
             setSaved(true);
             setCanEmbed(true);
-
-            setTimeout(() => {
-                setSaved(false);
-            }, 3000);
+            setTimeout(() => setSaved(false), 3000);
         } catch (error) {
+            toast.error("Failed to save settings. Please try again.", {
+                style: {
+                    borderRadius: "10px",
+                    background: "#333",
+                    color: "#fff",
+                }
+            });
             console.log(error);
+        } finally {
             setLoading(false);
         }
-    };
+    }
 
     useEffect(() => {
-        const handleGetDetails = async () => {
+        const getDetails = async () => {
             try {
-                const result = await axios.get(`/api/settings/get-settings?ownerId=${ownerId}`);
+                const res = await axios.get(`/api/settings/get-settings?ownerId=${ownerId}`);
 
-                setBusinessName(result.data.businessName);
-                setSupportEmail(result.data.supportEmail);
-                setKnowledge(result.data.knowledge);
+                setValue("businessName", res.data.businessName || "");
+                setValue("supportEmail", res.data.supportEmail || "");
+                setValue("knowledge", res.data.knowledge || "");
 
-                if (
-                    result.data.businessName &&
-                    result.data.supportEmail &&
-                    result.data.knowledge
-                ) {
+                if(res.data.businessName && res.data.supportEmail && res.data.knowledge) {
                     setCanEmbed(true);
                 }
             } catch (error) {
-                console.log(error);
+                toast.error("Failed to load settings. Please refresh the page.", {
+                    style: {
+                        borderRadius: "10px",
+                        background: "#333",
+                        color: "#fff",
+                    }
+                });
+                console.log(error); 
             }
-        };
+        }
 
-        handleGetDetails();
-    }, [ownerId, navigate]);
+        if(ownerId) getDetails();
+    },[ownerId, setValue]);
+
 
     return (
         <div className="min-h-screen bg-background text-foreground">
@@ -220,105 +217,108 @@ function DashboardHome({ ownerId }: { ownerId?: string }) {
                             className="space-y-9"
                         >
                             {/* Business Details */}
-                            <div>
-                                <h3 className="text-[11px] tracking-[0.3em] mb-5 gold-text font-semibold">
-                                    BUSINESS DETAILS
-                                </h3>
+                            <form onSubmit={handleSubmit(onSumbit)} className="space-y-9">
+                                <div>
+                                    <h3 className="text-[11px] tracking-[0.3em] mb-5 gold-text font-semibold">
+                                        BUSINESS DETAILS
+                                    </h3>
 
-                                <div className="space-y-4">
-                                    <input
-                                        type="text"
-                                        placeholder="Business Name"
-                                        value={businessName}
-                                        onChange={(e) => setBusinessName(e.target.value)}
-                                        className="w-full bg-input border border-border rounded-xl px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
-                                    />
-
-                                    <div>
+                                    <div className="space-y-4">
                                         <input
                                             type="text"
-                                            placeholder="Support Email"
-                                            value={supportEmail}
-                                            onChange={(e) => {
-                                                setSupportEmail(e.target.value);
-                                                if (emailError) setEmailError("");
-                                            }}
-                                            className={`w-full bg-input border rounded-xl px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 outline-none transition ${
-                                                emailError
-                                                    ? "border-red-500/60 focus:border-red-500/60 focus:ring-red-500/10"
-                                                    : "border-border focus:border-primary/40 focus:ring-primary/10"
-                                            }`}
+                                            placeholder="Business Name"
+                                            {...register("businessName", { required: true })}
+                                            className="w-full bg-input border border-border rounded-xl px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
                                         />
-                                        {emailError && (
-                                            <p className="mt-1.5 text-xs text-red-400">
-                                                {emailError}
-                                            </p>
-                                        )}
+
+                                        <div>
+                                            <input
+                                                type="email"
+                                                placeholder="Support Email"
+                                                {...register("supportEmail", {
+                                                    pattern: {
+                                                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                                        message: "Please enter a valid email address"
+                                                    }
+                                                })}
+                                                className={`w-full bg-input border rounded-xl px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 outline-none transition ${
+                                                    errors.supportEmail
+                                                        ? "border-red-500/60 focus:border-red-500/60 focus:ring-red-500/10"
+                                                        : "border-border focus:border-primary/40 focus:ring-primary/10"
+                                                }`}
+                                            />
+                                            {errors.supportEmail && (
+                                                <p className="mt-1.5 text-xs text-red-400">
+                                                    {errors.supportEmail.message}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            
 
-                            {/* Knowledge Base */}
-                            <div>
-                                <h3 className="text-[11px] tracking-[0.3em] mb-5 gold-text font-semibold">
-                                    KNOWLEDGE BASE
-                                </h3>
+                                {/* Knowledge Base */}
+                                <div>
+                                    <h3 className="text-[11px] tracking-[0.3em] mb-5 gold-text font-semibold">
+                                        KNOWLEDGE BASE
+                                    </h3>
 
-                                <textarea
-                                    value={knowledge}
-                                    onChange={(e) => setKnowledge(e.target.value)}
-                                    placeholder="Refund policy, delivery time, FAQs..."
-                                    className="w-full h-36 resize-none bg-input border border-border rounded-xl px-5 py-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
-                                />
-                            </div>
+                                    <textarea
+                                        {...register("knowledge", { required: true })}
+                                        placeholder="Refund policy, delivery time, FAQs..."
+                                        className="w-full h-36 resize-none bg-input border border-border rounded-xl px-5 py-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
+                                    />
+                                </div>
 
-                            {/* Buttons */}
-                            <div className="flex flex-wrap items-center gap-5">
-                                <motion.button
-                                    whileHover={{ y: -2, scale: 1.02 }}
-                                    whileTap={{ scale: 0.97 }}
-                                    disabled={loading}
-                                    onClick={handleSave}
-                                    className={`group relative px-9 py-3.5 rounded-xl backdrop-blur-xl border font-semibold text-sm tracking-wide shadow-lg overflow-hidden transition cursor-pointer ${
-                                        loading
-                                            ? "bg-muted border-border text-muted-foreground cursor-not-allowed"
-                                            : "bg-secondary border-border text-foreground hover:border-primary/30"
-                                    }`}
-                                >
-                                    <span className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-b from-primary/15 to-transparent transition duration-300" />
-
-                                    <span className="relative z-10">
-                                        {loading ? "Saving..." : "Apply Changes"}
-                                    </span>
-                                </motion.button>
-
-                                {saved && (
-                                    <motion.span
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="text-emerald-400 text-xs tracking-widest"
-                                    >
-                                        ✓ UPDATED
-                                    </motion.span>
-                                )}
-
-                                {canEmbed && (
+                                {/* Buttons */}
+                                <div className="flex flex-wrap items-center gap-5">
                                     <motion.button
-                                        initial={{ opacity: 0, y: 8 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        whileHover={{ y: -1, scale: 1.015 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={() => navigate.push("/embed")}
-                                        className="group relative px-9 py-3.5 rounded-xl font-semibold text-sm tracking-wide text-foreground bg-card border border-border shadow-lg overflow-hidden transition cursor-pointer"
+                                        type="submit"
+                                        whileHover={{ y: -2, scale: 1.02 }}
+                                        whileTap={{ scale: 0.97 }}
+                                        disabled={loading}
+                                        className={`group relative px-9 py-3.5 rounded-xl backdrop-blur-xl border font-semibold text-sm tracking-wide shadow-lg overflow-hidden transition cursor-pointer ${
+                                            loading
+                                                ? "bg-muted border-border text-muted-foreground cursor-not-allowed"
+                                                : "bg-secondary border-border text-foreground hover:border-primary/30"
+                                        }`}
                                     >
-                                        <span className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-b from-primary/10 to-transparent transition duration-300" />
+                                        <span className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-b from-primary/15 to-transparent transition duration-300" />
 
-                                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent group-hover:w-3/4 transition-all duration-500" />
-
-                                        <span className="relative z-10">Embed Code →</span>
+                                        <span className="relative z-10">
+                                            {loading ? "Saving..." : "Apply Changes"}
+                                        </span>
                                     </motion.button>
-                                )}
-                            </div>
+
+                                    {saved && (
+                                        <motion.span
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="text-emerald-400 text-xs tracking-widest"
+                                        >
+                                            ✓ UPDATED
+                                        </motion.span>
+                                    )}
+
+                                    {canEmbed && (
+                                        <motion.button
+                                            type="button"
+                                            initial={{ opacity: 0, y: 8 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            whileHover={{ y: -1, scale: 1.015 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => navigate.push("/embed")}
+                                            className="group relative px-9 py-3.5 rounded-xl font-semibold text-sm tracking-wide text-foreground bg-card border border-border shadow-lg overflow-hidden transition cursor-pointer"
+                                        >
+                                            <span className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-b from-primary/10 to-transparent transition duration-300" />
+
+                                            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent group-hover:w-3/4 transition-all duration-500" />
+
+                                            <span className="relative z-10">Embed Code →</span>
+                                        </motion.button>
+                                    )}
+                                </div>
+                            </form>
                         </motion.div>
                     </div>
 
