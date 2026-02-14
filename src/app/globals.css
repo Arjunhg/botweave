@@ -145,3 +145,17 @@ body::before {
   background-repeat: repeat;
   background-size: 150px 150px;
 }
+
+/* Gold accent text */
+.gold-text {
+  background: linear-gradient(to right, var(--primary), #e8c56d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gold accent border */
+.gold-border {
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
