@@ -2,7 +2,7 @@
 import { AnimatePresence, motion } from "motion/react"
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import FeatureSection from "./landing/FeatureSection";
+import FeatureSection from "./FeatureSection";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -31,7 +31,7 @@ export default function HeroSection({ email } : { email?: string }) {
         return () => {
             document.removeEventListener("mousedown", handleClickOutside)
         }
-    })
+    }, [])
 
     const navigate = useRouter();
 
@@ -90,7 +90,7 @@ export default function HeroSection({ email } : { email?: string }) {
                                         animate={{opacity:1, y:0}}
                                         exit={{opacity:0, y:-10}}
                                     >
-                                        <button className="w-full text-left px-4 py-3 text-sm text-card-foreground hover:bg-secondary transition-colors cursor-pointer">Dashboard</button>
+                                        <button className="w-full text-left px-4 py-3 text-sm text-card-foreground hover:bg-secondary transition-colors cursor-pointer"onClick={() => navigate.push('/dashboard')}>Dashboard</button>
                                         <button className="w-full text-left px-4 py-3 text-sm text-destructive hover:bg-secondary transition-colors cursor-pointer" onClick={handleLogout}>Logout</button>
                                     </motion.div>
                                 )}

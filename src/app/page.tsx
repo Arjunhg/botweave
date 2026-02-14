@@ -1,4 +1,4 @@
-import HeroSection from "@/components/HeroSection";
+import HeroSection from "@/components/landing/HeroSection";
 import { getUserSession } from "@/lib/getUserSession";
 
 export default async function Home() {

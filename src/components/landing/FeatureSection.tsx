@@ -15,7 +15,7 @@ export default function FeatureSection() {
             },
             {
                 title: "Instant Customer Support",
-                description: "Get instant, accurate responses to your customers questions, ensuring a smooth and efficient customer support experience.",
+                description: "Get instant, accurate responses to your customers' questions, ensuring a smooth and efficient customer support experience.",
                 icon: "💬",
             },
         ];

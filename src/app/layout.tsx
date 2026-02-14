@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Architects_Daughter, JetBrains_Mono } from "next/font/google";
+import { Architects_Daughter, Fira_Code, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
@@ -10,7 +10,7 @@ const architectsDaughter = Architects_Daughter({
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const firaCode = Fira_Code({
   variable: "--font-mono",
   subsets: ["latin"],
   display: "swap",
@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body
-        className={`${architectsDaughter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+        className={`${architectsDaughter.variable} ${firaCode.variable} font-sans antialiased`}
       >
         <Toaster/>
         {children}
