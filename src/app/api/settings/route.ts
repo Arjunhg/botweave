@@ -17,10 +17,9 @@ export async function POST(req: NextRequest){
 
         const wasCreated = !result.lastErrorObject?.updatedExisting;
 
-        return NextResponse.json(result, { status: wasCreated ? 201 : 200 });
+        return NextResponse.json(result.value, { status: wasCreated ? 201 : 200 });
 
     } catch (error) {
-        console.log(error);
         return NextResponse.json({
             message: `Error saving settings: ${error instanceof Error ? error.message : "Unknown error"}`
         }, { status: 500 });
