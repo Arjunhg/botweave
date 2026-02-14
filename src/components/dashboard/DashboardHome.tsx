@@ -15,21 +15,24 @@ function DashboardHome({ ownerId }: { ownerId?: string }) {
     const [canEmbed, setCanEmbed] = useState(false);
     const [emailError, setEmailError] = useState("");
 
+    // Email validation regex pattern
+    // Validates: user@domain.tld format with common special characters
+    // - Local part: letters, numbers, and ._%+- characters
+    // - Domain: letters, numbers, hyphens (not at start/end)
+    // - TLD: minimum 2 letters
+    const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+
     const validateEmail = (email: string): boolean => {
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
-        return emailRegex.test(email);
+        return EMAIL_REGEX.test(email);
     };
 
     const handleSave = async () => {
-        // Validate email format
-        if (!supportEmail.trim()) {
-            setEmailError("Email address is required");
-            return;
-        }
-        
-        if (!validateEmail(supportEmail)) {
-            setEmailError("Please enter a valid email address");
-            return;
+        // Validate email format if provided
+        if (supportEmail.trim()) {
+            if (!validateEmail(supportEmail.trim())) {
+                setEmailError("Please enter a valid email address");
+                return;
+            }
         }
 
         setEmailError("");
