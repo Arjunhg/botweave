@@ -13,8 +13,29 @@ function DashboardHome({ ownerId }: { ownerId?: string }) {
     const [loading, setLoading] = useState(false);
     const [saved, setSaved] = useState(false);
     const [canEmbed, setCanEmbed] = useState(false);
+    const [emailError, setEmailError] = useState("");
+
+    // Email validation regex pattern
+    // Validates: user@domain.tld format with common special characters
+    // - Local part: letters, numbers, and ._%+- characters
+    // - Domain: letters, numbers, hyphens (not at start/end)
+    // - TLD: minimum 2 letters
+    const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+
+    const validateEmail = (email: string): boolean => {
+        return EMAIL_REGEX.test(email);
+    };
 
     const handleSave = async () => {
+        // Validate email format if provided
+        if (supportEmail.trim()) {
+            if (!validateEmail(supportEmail.trim())) {
+                setEmailError("Please enter a valid email address");
+                return;
+            }
+        }
+
+        setEmailError("");
         setLoading(true);
         try {
             await axios.post("/api/settings", {
@@ -213,13 +234,27 @@ function DashboardHome({ ownerId }: { ownerId?: string }) {
                                         className="w-full bg-input border border-border rounded-xl px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
                                     />
 
-                                    <input
-                                        type="text"
-                                        placeholder="Support Email"
-                                        value={supportEmail}
-                                        onChange={(e) => setSupportEmail(e.target.value)}
-                                        className="w-full bg-input border border-border rounded-xl px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
-                                    />
+                                    <div>
+                                        <input
+                                            type="text"
+                                            placeholder="Support Email"
+                                            value={supportEmail}
+                                            onChange={(e) => {
+                                                setSupportEmail(e.target.value);
+                                                if (emailError) setEmailError("");
+                                            }}
+                                            className={`w-full bg-input border rounded-xl px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 outline-none transition ${
+                                                emailError
+                                                    ? "border-red-500/60 focus:border-red-500/60 focus:ring-red-500/10"
+                                                    : "border-border focus:border-primary/40 focus:ring-primary/10"
+                                            }`}
+                                        />
+                                        {emailError && (
+                                            <p className="mt-1.5 text-xs text-red-400">
+                                                {emailError}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
