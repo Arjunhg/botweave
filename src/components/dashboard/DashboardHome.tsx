@@ -80,8 +80,8 @@ function DashboardHome({ ownerId }: { ownerId?: string }) {
     useEffect(() => {
         const getDetails = async () => {
             try {
-                const res = await axios.get(`/api/settings/get-settings?ownerId=${ownerId}`);
-
+                const res = await axios.get(`/api/settings/get-settings?ownerId=${ownerId}`); 
+                
                 setValue("businessName", res.data.businessName || "");
                 setValue("supportEmail", res.data.supportEmail || "");
                 setValue("knowledge", res.data.knowledge || "");

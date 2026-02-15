@@ -22,8 +22,9 @@ export async function GET(request: NextRequest){
     const response = NextResponse.redirect(origin);
     response.cookies.set('access_token', session.accessToken, {
         httpOnly: true,
-        maxAge: 24*60*60*1000,
+        maxAge: 24 * 60 * 60,
         secure: process.env.NODE_ENV === 'production',
+        sameSite: "lax",
         path: "/"
     });
 

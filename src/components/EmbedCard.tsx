@@ -150,9 +150,7 @@ const EmbedCard = ({ ownerId }: { ownerId: string }) => {
 
                                 {/* Code Content */}
                                 <div className="relative p-10 font-mono text-[13px] leading-7">
-                                    <div className="text-muted-foreground mb-3">
-                                        // place before &lt;/body&gt;
-                                    </div>
+                                    <div className="text-muted-foreground mb-3">{"// place before </body>"}</div>
                                     <pre className="whitespace-pre-wrap break-words font-mono text-[14px] leading-7 text-primary">
                                         {embedCode}
                                     </pre>
