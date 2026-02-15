@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Architects_Daughter, Fira_Code, JetBrains_Mono } from "next/font/google";
+import { Architects_Daughter, Fira_Code } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 

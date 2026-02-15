@@ -56,7 +56,7 @@ export default function HeroSection({ email } : { email?: string }) {
             });
             navigate.push("/");
         }
-    }, [searchParams]);
+    }, [navigate, searchParams]);
     
 
     return (
