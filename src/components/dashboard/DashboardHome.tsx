@@ -24,8 +24,32 @@ function DashboardHome({ ownerId }: { ownerId?: string }) {
         register,
         handleSubmit,
         setValue,
+        watch,
         formState: { errors }
     } = useForm<FormValues>();
+
+    const watchedBusinessName = watch("businessName") || "";
+    const watchedSupportEmail = watch("supportEmail") || "";
+    const watchedKnowledge = watch("knowledge") || "";
+
+    const hasBusinessName = watchedBusinessName.trim().length > 0;
+    const hasValidSupportEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(watchedSupportEmail.trim());
+    const hasSufficientKnowledge = watchedKnowledge.trim().length >= 180;
+    const hasProductInfo = /(product|service|catalog|plan|feature|item)/i.test(watchedKnowledge);
+    const hasPolicyInfo = /(refund|return|cancel|cancellation|policy|warranty)/i.test(watchedKnowledge);
+    const hasSupportFlow = /(support|contact|email|phone|hours|response time|help)/i.test(watchedKnowledge);
+
+    const checklistItems = [
+        { label: "Business name added", done: hasBusinessName },
+        { label: "Valid support email", done: hasValidSupportEmail },
+        { label: "Knowledge base has enough detail (180+ chars)", done: hasSufficientKnowledge },
+        { label: "Includes products/services info", done: hasProductInfo },
+        { label: "Includes policy info (refund/return/cancel)", done: hasPolicyInfo },
+        { label: "Includes support/contact details", done: hasSupportFlow },
+    ];
+
+    const completedCount = checklistItems.filter((item) => item.done).length;
+    const completionPercent = Math.round((completedCount / checklistItems.length) * 100);
 
     const onSumbit = async (data: FormValues) => {
         setLoading(true);
@@ -261,10 +285,36 @@ function DashboardHome({ ownerId }: { ownerId?: string }) {
                                     </h3>
 
                                     <textarea
-                                        {...register("knowledge", { required: true })}
+                                        {...register("knowledge")}
                                         placeholder="Refund policy, delivery time, FAQs..."
                                         className="w-full h-36 resize-none bg-input border border-border rounded-xl px-5 py-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
                                     />
+
+                                    <div className="mt-4 rounded-xl border border-border bg-secondary/40 p-4">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <p className="text-xs font-semibold tracking-wide text-foreground">
+                                                Knowledge Base Completeness
+                                            </p>
+                                            <span className="text-xs text-muted-foreground">
+                                                {completionPercent}%
+                                            </span>
+                                        </div>
+
+                                        <div className="mt-2 h-1.5 w-full rounded-full bg-background">
+                                            <div
+                                                className="h-full rounded-full bg-primary transition-all duration-300"
+                                                style={{ width: `${completionPercent}%` }}
+                                            />
+                                        </div>
+
+                                        <div className="mt-3 space-y-1.5">
+                                            {checklistItems.map((item) => (
+                                                <p key={item.label} className={`text-xs ${item.done ? "text-emerald-400" : "text-muted-foreground"}`}>
+                                                    {item.done ? "✓" : "•"} {item.label}
+                                                </p>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Buttons */}
