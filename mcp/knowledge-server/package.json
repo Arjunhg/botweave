@@ -1,0 +1,24 @@
+{
+  "name": "botweave-knowledge-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --loader ts-node/esm src/index.ts",
+    "build": "node ./node_modules/typescript/lib/tsc.js -p tsconfig.json",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "botweave": "file:../..",
+    "mongodb": "^6.20.0",
+    "zod": "^3.25.76",
+    "dotenv": "^17.3.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.18.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}
