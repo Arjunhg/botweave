@@ -1,0 +1,28 @@
+services:
+  botweave-knowledge-mcp:
+    build:
+      context: ./knowledge-server
+    environment:
+      MONGODB_URL: ${MONGODB_URL}
+      MONGODB_DB_NAME: ${MONGODB_DB_NAME:-}
+      KNOWLEDGE_MCP_PORT: 4101
+    ports:
+      - "4101:4101"
+    networks:
+      - botweave-net
+
+  botweave-support-mcp:
+    build:
+      context: ./support-server
+    environment:
+      MONGODB_URL: ${MONGODB_URL}
+      MONGODB_DB_NAME: ${MONGODB_DB_NAME:-}
+      SUPPORT_MCP_PORT: 4102
+    ports:
+      - "4102:4102"
+    networks:
+      - botweave-net
+
+networks:
+  botweave-net:
+    external: true
